@@ -6,7 +6,9 @@ Super simple word-based password generator inspired by xkcd.com.
 Usage
 =====
 
-    ./word-pass [count]
+```bash
+./word-pass [count]
+```
 
 Selects `count` (default 4) random words from its dictionary and prints them. These words should be used as a password, a la `correct horse battery staple` or `CorrectHorseBatteryStaple`.
 
