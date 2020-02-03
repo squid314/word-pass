@@ -5,6 +5,9 @@
 from math import log
 from random import choice
 
+def title(word):
+    return word[0].upper() + word[1:]
+
 def genwords(usablewords):
     print(len(usablewords))
     import sys
@@ -14,8 +17,17 @@ def genwords(usablewords):
     except:
         pass
     print('entropy: %.3f' % (log(len(usablewords))/log(2)*words,))
-    print(' '.join(choice(usablewords) for i in range(words)))
+    selected = [choice(usablewords) for i in range(words)]
+    print(' '.join(selected))
+    print(''.join(title(word) for word in selected))
+    if words >= 2:
+        print('entropy: %.3f' % ((log(len(usablewords))*words + log(len(set(numbers))) + log(len(symbols)))/log(2),))
+        front = [title(selected[0]), choice(numbers), title(selected[1]), choice(symbols)]
+        print(''.join(front + [title(word) for word in selected[2:]]))
 
+# fake out a weighted list by repeating numbers
+numbers = [str(n) for n in range(0,10)]
+symbols = ['!','@','#','$','%','^','&','*','()','[]','{}']
 # 10k words, still need to be cleaned
 words = ["the", "of", "and", "to", "a", "in", "for", "is",
     "on", "that", "by", "this", "with", "i", "you", "it",
