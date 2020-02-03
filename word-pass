@@ -1280,10 +1280,10 @@ words = ["the", "of", "and", "to", "a", "in", "for", "is",
     "bent", "laos", "subjective", "monsters", "asylum", "lightbox", "robbie", "stake",
     "cocktail", "outlets", "swaziland", "varieties", "arbor", "mediawiki", "configurations", "poison"]
 #print(len(words))
-#usablewords = [word for word in words if len(word) >= 4]
+usablewords10k = [word for word in words if len(word) >= 4]
 
 # 100k words, already cleaned, 47259 words remain
-usablewords = ["that", "with", "which", "have", "from", "this", "were", "they",
+usablewords100k = ["that", "with", "which", "have", "from", "this", "were", "they",
     "their", "would", "said", "been", "will", "them", "when", "there",
     "more", "into", "your", "what", "could", "than", "other", "some",
     "very", "upon", "about", "only", "time", "like", "little", "then",
@@ -7192,4 +7192,12 @@ usablewords = ["that", "with", "which", "have", "from", "this", "were", "they",
     "shoveled", "siellae", "solis", "sortira", "teintes", "trottoirs", "unshod", "versichern",
     "vraisemblance", "wateren", "withes"]
 
-genwords(usablewords)
+# apparently the 100k word list is missing a large number of words, including some really obvious words like "math". so we will just add them back in
+missingwords = [w for w in usablewords10k if w not in usablewords100k]
+#if len(missingwords) > 0:
+#    print("missing lots of words: %s" % len(missingwords))
+#    print(' '.join(missingwords))
+usablewords = usablewords100k + missingwords
+
+if __name__ == "__main__":
+    genwords(usablewords)
