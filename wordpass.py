@@ -14,31 +14,32 @@ def title(word):
     return word[0].upper() + word[1:]
 
 # recommended count is 6 for eff's large list
+# TODO convert comment above to docstring since we now make this a module
 def genwords(count, usablewords, usablenumbers, usablesymbols):
-    wordentropy = log(len(usablewords))/log(2)*count
+    wordentropy = log(len(usablewords)) / log(2) * count
     selected = [choice(usablewords) for _ in range(count)]
     spacedwords = ' '.join(selected)
     titledwords = ''.join(title(word) for word in selected)
     if count < 2:
         return ((wordentropy, (spacedwords, titledwords)),)
 
-    selectednums = [choice(usablenumbers) for _ in range((count  )/2)]
-    selectedsyms = [choice(usablesymbols) for _ in range((count-1)/2)]
+    selectednums = [choice(usablenumbers) for _ in range(int((count  ) / 2))]
+    selectedsyms = [choice(usablesymbols) for _ in range(int((count-1) / 2))]
     extendedentropy = (
             log(len(usablewords))   * len(selected) +
             log(len(usablenumbers)) * len(selectednums) +
             log(len(usablesymbols)) * len(selectedsyms)
-        )/log(2)
-    extras = list(i for i in chain.from_iterable(zip_longest(selectednums, selectedsyms)) if i)
+        ) / log(2)
+    extras = chain.from_iterable(zip_longest(selectednums, selectedsyms))
     final =  list(i for i in chain.from_iterable(zip_longest(selected, extras)) if i)
     return (
-            (wordentropy,     (spacedwords, titledwords)),
-            (extendedentropy, (''.join(title(word) for word in final),))
+        (    wordentropy, (spacedwords, titledwords)),
+        (extendedentropy, (''.join(title(word) for word in final),))
         )
 
 # provide numbers and symbols for systems which require
 NUMBERS = [str(n) for n in range(0,10)]
-SYMBOLS = ['!','@','#','$','%','^','&','*','()','[]','{}']
+SYMBOLS = ['!','@','#','$','%','^','&','*','/','?',',',';',':','_','()','[]','{}']
 
 # use eff's large wordlist (7776; https://www.eff.org/deeplinks/2016/07/new-wordlists-random-passphrases)
 WORDS = [
@@ -913,12 +914,20 @@ WORDS = [
 
 if __name__ == "__main__":
     import sys
+    argv = sys.argv[1:]
+    # default to 6 words (~77bits entropy for words only)
     count = 6
     try:
-        count = int(sys.argv[1])
+        count = int(argv[0])
+        argv = argv[1:]
     except:
         pass
-    results = genwords(count, WORDS, NUMBERS, SYMBOLS)
+
+    # many places only allow a limited set of symbols (because they are stupid), so allow the user to provide their own set
+    symbols = argv if len(argv) > 0 else SYMBOLS
+
+    print('words: %d, numbers: %d, symbols: %d' % (len(WORDS), len(NUMBERS), len(symbols)))
+    results = genwords(count, WORDS, NUMBERS, symbols)
     for (ent, prints) in results:
         print('entropy: %.3f' % (ent,))
         for p in prints: print(p)
