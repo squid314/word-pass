@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# vim: fileencoding=utf-8 ft=python ff=unix ts=4 sts=4 sw=4 et
+# vi: set fileencoding=utf-8 ft=python ff=unix ts=4 sts=4 sw=4 et foldmethod=indent :
 
 from math      import log
 from random    import choice
@@ -13,33 +13,36 @@ except:
 def title(word):
     return word[0].upper() + word[1:]
 
-def genwords(usablewords):
-    print(len(usablewords))
-    import sys
-    # recommended count is 6 for eff's large list
-    words = 6
-    try:
-        words = int(sys.argv[1])
-    except:
-        pass
-    print('entropy: %.3f' % (log(len(usablewords))/log(2)*words,))
-    selected = [choice(usablewords) for i in range(words)]
-    print(' '.join(selected))
-    print(''.join(title(word) for word in selected))
-    if words >= 2:
-        randnums = [choice(numbers) for _ in range(words)]
-        randsyms = [choice(symbols) for _ in range(words)]
-        extras = list(i for i in chain.from_iterable(zip_longest(randnums, randsyms)) if i)[:words-1]
-        print('entropy: %.3f' % ((log(len(usablewords))*words + log(len(set(numbers)))*((len(extras)+1)/2) + log(len(symbols))*(len(extras)/2))/log(2),))
-        final =  list(i for i in chain.from_iterable(zip_longest(selected, extras  )) if i)
-        print(''.join([title(word) for word in final]))
+# recommended count is 6 for eff's large list
+def genwords(count, usablewords, usablenumbers, usablesymbols):
+    wordentropy = log(len(usablewords))/log(2)*count
+    selected = [choice(usablewords) for _ in range(count)]
+    spacedwords = ' '.join(selected)
+    titledwords = ''.join(title(word) for word in selected)
+    if count < 2:
+        return ((wordentropy, (spacedwords, titledwords)),)
+
+    selectednums = [choice(usablenumbers) for _ in range((count  )/2)]
+    selectedsyms = [choice(usablesymbols) for _ in range((count-1)/2)]
+    extendedentropy = (
+            log(len(usablewords))   * len(selected) +
+            log(len(usablenumbers)) * len(selectednums) +
+            log(len(usablesymbols)) * len(selectedsyms)
+        )/log(2)
+    extras = list(i for i in chain.from_iterable(zip_longest(selectednums, selectedsyms)) if i)
+    final =  list(i for i in chain.from_iterable(zip_longest(selected, extras)) if i)
+    return (
+            (wordentropy,     (spacedwords, titledwords)),
+            (extendedentropy, (''.join(title(word) for word in final),))
+        )
 
 # provide numbers and symbols for systems which require
-numbers = [str(n) for n in range(0,10)]
-symbols = ['!','@','#','$','%','^','&','*','()','[]','{}']
+NUMBERS = [str(n) for n in range(0,10)]
+SYMBOLS = ['!','@','#','$','%','^','&','*','()','[]','{}']
 
 # use eff's large wordlist (7776; https://www.eff.org/deeplinks/2016/07/new-wordlists-random-passphrases)
-words = [ "abacus", "abdomen", "abdominal", "abide", "abiding", "ability", "ablaze", "able",
+WORDS = [
+    "abacus", "abdomen", "abdominal", "abide", "abiding", "ability", "ablaze", "able",
     "abnormal", "abrasion", "abrasive", "abreast", "abridge", "abroad", "abruptly", "absence",
     "absentee", "absently", "absinthe", "absolute", "absolve", "abstain", "abstract", "absurd",
     "accent", "acclaim", "acclimate", "accompany", "account", "accuracy", "accurate", "accustom",
@@ -909,4 +912,13 @@ words = [ "abacus", "abdomen", "abdominal", "abide", "abiding", "ability", "abla
 ]
 
 if __name__ == "__main__":
-    genwords(words)
+    import sys
+    count = 6
+    try:
+        count = int(sys.argv[1])
+    except:
+        pass
+    results = genwords(count, WORDS, NUMBERS, SYMBOLS)
+    for (ent, prints) in results:
+        print('entropy: %.3f' % (ent,))
+        for p in prints: print(p)
