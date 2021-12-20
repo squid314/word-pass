@@ -2,8 +2,13 @@
 # -*- coding: utf-8 -*-
 # vim: fileencoding=utf-8 ft=python ff=unix ts=4 sts=4 sw=4 et
 
-from math import log
-from random import choice
+from math      import log
+from random    import choice
+from itertools import chain
+try:
+    from itertools import zip_longest
+except:
+    from itertools import izip_longest as zip_longest
 
 def title(word):
     return word[0].upper() + word[1:]
@@ -22,9 +27,12 @@ def genwords(usablewords):
     print(' '.join(selected))
     print(''.join(title(word) for word in selected))
     if words >= 2:
-        print('entropy: %.3f' % ((log(len(usablewords))*words + log(len(set(numbers))) + log(len(symbols)))/log(2),))
-        front = [title(selected[0]), choice(numbers), title(selected[1]), choice(symbols)]
-        print(''.join(front + [title(word) for word in selected[2:]]))
+        randnums = [choice(numbers) for _ in range(words)]
+        randsyms = [choice(symbols) for _ in range(words)]
+        extras = list(i for i in chain.from_iterable(zip_longest(randnums, randsyms)) if i)[:words-1]
+        print('entropy: %.3f' % ((log(len(usablewords))*words + log(len(set(numbers)))*((len(extras)+1)/2) + log(len(symbols))*(len(extras)/2))/log(2),))
+        final =  list(i for i in chain.from_iterable(zip_longest(selected, extras  )) if i)
+        print(''.join([title(word) for word in final]))
 
 # provide numbers and symbols for systems which require
 numbers = [str(n) for n in range(0,10)]
