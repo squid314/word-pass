@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # vi: set fileencoding=utf-8 ft=python ff=unix ts=4 sts=4 sw=4 et foldmethod=indent :
 
@@ -38,8 +38,8 @@ def genwords(count, usablewords, usablenumbers, usablesymbols):
         )
 
 # provide numbers and symbols for systems which require
-NUMBERS = [str(n) for n in range(0,10)]
-SYMBOLS = ['!','@','#','$','%','^','&','*','/','?',',',';',':','_','()','[]','{}']
+NUMBERS = '0123456789'
+SYMBOLS = '!@#$%^&*/?,;:_()[]{}'
 
 # use eff's large wordlist (7776; https://www.eff.org/deeplinks/2016/07/new-wordlists-random-passphrases)
 WORDS = [
